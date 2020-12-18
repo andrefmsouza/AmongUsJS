@@ -6,7 +6,7 @@ function main(){
 
     GameEngine.initListeners();
 
-    GameEngine.setMap('../img/theSkeldLQ.png').then( () => {
+    GameEngine.setMap('./img/theSkeldLQ.png').then( () => {
         requestAnimationFrame( () => GameEngine.run() );
     } );
 }

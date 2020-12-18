@@ -77,8 +77,6 @@ const Cafeteria = {
             x2: 1800,
             y2: 616
         },
-        
-
         {
             type: 'circle',
             x: 2000,
