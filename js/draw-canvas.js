@@ -19,14 +19,14 @@ const DrawCanvas = {
         ctx.fillRect( x, y, width, height);
     },
 
-    drawObjLine(obj, ctx, canvasCenter, player, color){
+    drawObjLine(obj, ctx, playerRefCanvas, player, color){
         ctx.strokeStyle = color;
          
         let positionCanvas = {
-            x1: canvasCenter.x + (obj.x1 - player.x),
-            y1: canvasCenter.y + (obj.y1 - player.y),
-            x2: canvasCenter.x + (obj.x2 - player.x),
-            y2: canvasCenter.y + (obj.y2 - player.y),
+            x1: playerRefCanvas.x + (obj.x1 - player.x),
+            y1: playerRefCanvas.y + (obj.y1 - player.y),
+            x2: playerRefCanvas.x + (obj.x2 - player.x),
+            y2: playerRefCanvas.y + (obj.y2 - player.y),
         }
 
         ctx.beginPath();
@@ -36,29 +36,29 @@ const DrawCanvas = {
         ctx.stroke();
     },
 
-    drawObjRect(obj, ctx, canvasCenter, player, color){
+    drawObjRect(obj, ctx, playerRefCanvas, player, color){
         ctx.fillStyle = color;
 
         let positionCanvas = {
-            x: canvasCenter.x + (obj.x - player.x),
-            y: canvasCenter.y + (obj.y - player.y)
+            x: playerRefCanvas.x + (obj.x - player.x),
+            y: playerRefCanvas.y + (obj.y - player.y)
         }
 
         ctx.fillRect( positionCanvas.x, positionCanvas.y, obj.width, obj.height);
     },
 
-    drawObjEllipse(obj, ctx, canvasCenter, player, color){
+    drawObjEllipse(obj, ctx, playerRefCanvas, player, color){
         ctx.strokeStyle = color;
 
         let positionCanvas = {
-            x1: canvasCenter.x + (obj.x1 - player.x),
-            y1: canvasCenter.y + (obj.y1 - player.y),
-            x2: canvasCenter.x + (obj.x2 - player.x),
-            y2: canvasCenter.y + (obj.y2 - player.y),
-            x3: canvasCenter.x + (obj.x3 - player.x),
-            y3: canvasCenter.y + (obj.y3 - player.y),
-            x4: canvasCenter.x + (obj.x4 - player.x),
-            y4: canvasCenter.y + (obj.y4 - player.y),
+            x1: playerRefCanvas.x + (obj.x1 - player.x),
+            y1: playerRefCanvas.y + (obj.y1 - player.y),
+            x2: playerRefCanvas.x + (obj.x2 - player.x),
+            y2: playerRefCanvas.y + (obj.y2 - player.y),
+            x3: playerRefCanvas.x + (obj.x3 - player.x),
+            y3: playerRefCanvas.y + (obj.y3 - player.y),
+            x4: playerRefCanvas.x + (obj.x4 - player.x),
+            y4: playerRefCanvas.y + (obj.y4 - player.y),
         }
 
         ctx.beginPath();
@@ -70,12 +70,12 @@ const DrawCanvas = {
         ctx.stroke();
     },
 
-    drawObjCircle(obj, ctx, canvasCenter, player, color){
+    drawObjCircle(obj, ctx, playerRefCanvas, player, color){
         ctx.strokeStyle = color;
 
         let positionCanvas = {
-            x: canvasCenter.x + (obj.x - player.x),
-            y: canvasCenter.y + (obj.y - player.y),
+            x: playerRefCanvas.x + (obj.x - player.x),
+            y: playerRefCanvas.y + (obj.y - player.y),
         }
 
         ctx.beginPath();
@@ -83,17 +83,17 @@ const DrawCanvas = {
         ctx.stroke();
     },
 
-    drawObjects( objects, ctx , canvasCenter, player, color){
+    drawObjects( objects, ctx , playerRefCanvas, player, color){
         objects.forEach( (obj) => {
             
             if( obj.type == 'line' ){
-                this.drawObjLine(obj, ctx, canvasCenter, player, color);
+                this.drawObjLine(obj, ctx, playerRefCanvas, player, color);
             }else if( obj.type == 'rect'){
-                this.drawObjRect(obj, ctx, canvasCenter, player, color);
+                this.drawObjRect(obj, ctx, playerRefCanvas, player, color);
             }else if( obj.type == 'ellipse'){
-                this.drawObjEllipse(obj, ctx, canvasCenter, player, color);
+                this.drawObjEllipse(obj, ctx, playerRefCanvas, player, color);
             }else if( obj.type == 'circle'){
-                this.drawObjCircle(obj, ctx, canvasCenter, player, color);
+                this.drawObjCircle(obj, ctx, playerRefCanvas, player, color);
             }
 
         } );

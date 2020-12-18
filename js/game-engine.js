@@ -1,12 +1,13 @@
 import CollisionDetection from './collision-detection.js';
 import DrawCanvas from './draw-canvas.js';
+import Cafeteria from './cafeteria.js';
 
 const GameEngine = {
 
     VELOCITY: 3,
     CANVAS_WIDTH: 720,
     CANVAS_HEIGHT: 480,
-    CANVAS_CENTER: {
+    PLAYER_REF_CANVAS: {
         x: 0,
         y: 0
     },
@@ -21,155 +22,14 @@ const GameEngine = {
         x: 2030,
         y: 560,
         width: 40,
-        height: 50
+        height: 50,
+        status: 'alive'
     },
 
     keyPressed: {},
 
     obstacles:[
-        {
-            type: 'line',
-            x1: 1958,
-            y1: 82,
-            x2: 1795,
-            y2: 256
-        },
-        {
-            type: 'line',
-            x1: 1958,
-            y1: 82,
-            x2: 2490,
-            y2: 82
-        },
-        {
-            type: 'line',
-            x1: 2490,
-            y1: 82,
-            x2: 2730,
-            y2: 331
-        },
-        {
-            type: 'line',
-            x1: 2730,
-            y1: 331,
-            x2: 2730,
-            y2: 530
-        },
-        {
-            type: 'line',
-            x1: 1795,
-            y1: 256,
-            x2: 1795,
-            y2: 530
-        },
-        {
-            type: 'line',
-            x1: 2515,
-            y1: 1023,
-            x2: 2730,
-            y2: 810
-        },
-        {
-            type: 'line',
-            x1: 2515,
-            y1: 1023,
-            x2: 2311,
-            y2: 1023
-        },
-        {
-            type: 'line',
-            x1: 2205,
-            y1: 1023,
-            x2: 2005,
-            y2: 1023
-        },
-        {
-            type: 'line',
-            x1: 1800,
-            y1: 815,
-            x2: 2005,
-            y2: 1023
-        },
-        {
-            type: 'line',
-            x1: 1800,
-            y1: 815,
-            x2: 1800,
-            y2: 615
-        },
-        {
-            type: 'line',
-            x1: 2730,
-            y1: 616,
-            x2: 2730,
-            y2: 810
-        },
-        
-
-        {
-            type: 'circle',
-            x: 2000,
-            y:795,
-            radius: 84
-        },
-        {
-            type: 'circle',
-            x: 2075,
-            y:795,
-            radius: 84
-        },
-
-        {
-            type: 'circle',
-            x: 2415,
-            y:795,
-            radius: 84
-        },
-        {
-            type: 'circle',
-            x: 2485,
-            y:795,
-            radius: 84
-        },
-
-        {
-            type: 'circle',
-            x: 2210,
-            y: 585,
-            radius: 84
-        },
-        {
-            type: 'circle',
-            x: 2281,
-            y: 585,
-            radius: 84
-        },
-
-        {
-            type: 'circle',
-            x: 2000,
-            y: 362,
-            radius: 84
-        },
-        {
-            type: 'circle',
-            x: 2071,
-            y: 362,
-            radius: 84
-        },
-
-        {
-            type: 'circle',
-            x: 2415,
-            y: 362,
-            radius: 84
-        },
-        {
-            type: 'circle',
-            x: 2486,
-            y: 362,
-            radius: 84
-        }
+        ...Cafeteria.obstacles
     ],
 
     setDevMode( mode ){
@@ -183,8 +43,8 @@ const GameEngine = {
         
         this.ctx = this.canvas.getContext("2d");
 
-        this.CANVAS_CENTER.x = Math.floor( ( this.canvas.width / 2 ) - ( this.player.width / 2) );
-        this.CANVAS_CENTER.y = Math.floor( ( this.canvas.height / 2 ) - ( this.player.height / 2) ); 
+        this.PLAYER_REF_CANVAS.x = Math.floor( ( this.canvas.width / 2 ) - ( this.player.width / 2) );
+        this.PLAYER_REF_CANVAS.y = Math.floor( ( this.canvas.height / 2 ) - ( this.player.height / 2) ); 
     },
 
     setMap(path){
@@ -196,6 +56,15 @@ const GameEngine = {
             this.INPUT_DEV_MODE.readOnly = true;
 
             document.body.append( this.INPUT_DEV_MODE );
+
+            this.BTN_DEV_MODE = document.createElement("BUTTON");
+            this.BTN_DEV_MODE.innerHTML = `Player status - ${this.player.status}`;
+            this.BTN_DEV_MODE.onclick = () =>{
+                this.player.status =  this.player.status == 'alive' ? 'dead' : 'alive';
+                this.BTN_DEV_MODE.innerHTML = `Player status - ${this.player.status}`;
+            };
+
+            document.body.append( this.BTN_DEV_MODE );
         }
 
         return new Promise( (resolve, reject) => {
@@ -228,28 +97,32 @@ const GameEngine = {
 
     movePlayer(){
         if( this.keyPressed["ArrowUp"] ){
-            if( !CollisionDetection.collisionDetection( this.obstacles, { ...this.player, y: this.player.y - this.VELOCITY } ) ){
+            if( this.player.status != 'alive' || !CollisionDetection.collisionDetection( this.obstacles, { ...this.player, y: this.player.y - this.VELOCITY } ) ){
                 this.player.y -= this.VELOCITY;
             }
         }
         if( this.keyPressed["ArrowRight"] ){
-            if( !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x + this.VELOCITY } ) ){
+            if( this.player.status != 'alive' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x + this.VELOCITY } ) ){
                 this.player.x += this.VELOCITY;
             }
         }
         if( this.keyPressed["ArrowDown"] ){
-            if( !CollisionDetection.collisionDetection( this.obstacles, {...this.player, y: this.player.y + this.VELOCITY } ) ){
+            if( this.player.status != 'alive' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, y: this.player.y + this.VELOCITY } ) ){
                 this.player.y += this.VELOCITY;
             }
         }
         if( this.keyPressed["ArrowLeft"] ){
-            if( !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x - this.VELOCITY } ) ){
+            if( this.player.status != 'alive' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x - this.VELOCITY } ) ){
                 this.player.x -= this.VELOCITY;
             }
         }
 
         if( this.DEV )
             this.INPUT_DEV_MODE.value = `X: ${this.player.x} - Y: ${this.player.y}`;
+    },
+
+    setPlayerStatus(status){
+        this.player.status = status
     },
 
     run(){
@@ -263,7 +136,7 @@ const GameEngine = {
         DrawCanvas.drawPlayer(this.ctx, this.canvas, this.player, "red");
 
         if( this.DEV ){
-            DrawCanvas.drawObjects(this.obstacles, this.ctx, this.CANVAS_CENTER, this.player, "blue", this.MAP_ZOOM);
+            DrawCanvas.drawObjects(this.obstacles, this.ctx, this.PLAYER_REF_CANVAS, this.player, "red");
         }
 
         requestAnimationFrame( () => this.run() );
