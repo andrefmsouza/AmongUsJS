@@ -1,20 +1,47 @@
 const CollisionDetection = {
-    collisionDetection( obstacles, playerPosition, canvasProporcion = false ){
-        for( i in obstacles){
+    collisionDetection( obstacles, playerPosition, zoom = 1 ){
+        for( let i in obstacles){
             let obstacle = obstacles[i];
     
             if(obstacle.type == 'line'){
-                if( this.lineRectCollision( obstacle, playerPosition, canvasProporcion ) )
+                if( CollisionDetection.lineRectCollision( obstacle, playerPosition, zoom ) )
                     return true;
             }else if(obstacle.type == 'circle'){
+                if( CollisionDetection.rectCircleCollision( obstacle, playerPosition, zoom ) )
+                    return true;
             }else if(obstacle.type == 'rect'){
-                if( rectRectCollision( obstacle, playerPosition, canvasProporcion ) )
+                if( CollisionDetection.rectRectCollision( obstacle, playerPosition, zoom ) )
+                    return true;
+            }else if(obstacle.type == 'ellipse'){
+                if( CollisionDetection.lineRectCollision( obstacle, playerPosition, zoom ) )
                     return true;
             }
         }
     
         return false;
     
+    },
+
+    rectCircleCollision(obstacle, playerPosition, zoom = 1){
+        let widthImgProporcion = playerPosition.width  / zoom;
+        let heightImgProporcion = playerPosition.height / zoom;
+
+        //distances between the circle’s center and the rectangle’s center
+        var distX = Math.abs( obstacle.x - playerPosition.x - widthImgProporcion / 2 );
+        var distY = Math.abs( obstacle.y - playerPosition.y - heightImgProporcion / 2);
+
+        //too far to collide
+        if (distX > ( widthImgProporcion / 2 + obstacle.radius)) { return false; }
+        if (distY > ( heightImgProporcion / 2 + obstacle.radius)) { return false; }
+
+        //rect inside the circle
+        if (distX <= ( widthImgProporcion / 2)) { return true; } 
+        if (distY <= ( heightImgProporcion / 2)) { return true; }
+
+        //Using Pythagoras formula to compare the distance between circle and rect centers.
+        var dx = distX - widthImgProporcion / 2;
+        var dy = distY- heightImgProporcion / 2;
+        return ( dx * dx + dy * dy <= ( obstacle.radius * obstacle.radius ) );
     },
     
     lineLineCollision(line1, line2){
@@ -27,34 +54,29 @@ const CollisionDetection = {
         return false;
     },
     
-    lineRectCollision(obstacle, playerPosition, canvasProporcion = false){
-        if(canvasProporcion){
-            var widthImgProporcion = playerPosition.width * 100 / canvasProporcion.width;
-            var heightImgProporcion = playerPosition.height * 100 / canvasProporcion.height;
-        }else{
-            var widthImgProporcion = playerPosition.width;
-            var heightImgProporcion = playerPosition.height;
-        }
+    lineRectCollision(obstacle, playerPosition, zoom = 1){
+        let widthImgProporcion = playerPosition.width  / zoom;
+        let heightImgProporcion = playerPosition.height / zoom;
     
-        let left =   lineLineCollision(obstacle, {
+        let left =   CollisionDetection.lineLineCollision(obstacle, {
             x1: playerPosition.x,
             y1: playerPosition.y,
             x2: playerPosition.x,
             y2: playerPosition.y + heightImgProporcion,
         });
-        let right =  lineLineCollision(obstacle, {
+        let right =  CollisionDetection.lineLineCollision(obstacle, {
             x1: playerPosition.x + widthImgProporcion, 
             y1: playerPosition.y,
             x2: playerPosition.x + widthImgProporcion,
             y2: playerPosition.y + heightImgProporcion
         });
-        let top =    lineLineCollision(obstacle, {
+        let top =    CollisionDetection.lineLineCollision(obstacle, {
             x1: playerPosition.x,
             y1: playerPosition.y,
             x2: playerPosition.x + widthImgProporcion,
             y2: playerPosition.y
         });
-        let bottom = lineLineCollision(obstacle, {
+        let bottom = CollisionDetection.lineLineCollision(obstacle, {
             x1: playerPosition.x,
             y1: playerPosition.y + heightImgProporcion,
             x2: playerPosition.x + widthImgProporcion,
@@ -67,14 +89,11 @@ const CollisionDetection = {
         return false;
     },
     
-    rectRectCollision( obstacle, playerPosition, canvasProporcion = false ){
-        if(canvasProporcion){
-            var widthImgProporcion = playerPosition.width * 100 / canvasProporcion.width;
-            var heightImgProporcion = playerPosition.height * 100 / canvasProporcion.height;
-        }else{
-            var widthImgProporcion = playerPosition.width;
-            var heightImgProporcion = playerPosition.height;
-        }
+    rectRectCollision( obstacle, playerPosition, zoom = 1 ){
+        
+        let widthImgProporcion = playerPosition.width  / zoom;
+        let heightImgProporcion = playerPosition.height / zoom;
+        
     
         if (obstacle.x < playerPosition.x + widthImgProporcion &&
             obstacle.x + obstacle.width >  playerPosition.x &&

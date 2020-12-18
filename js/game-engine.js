@@ -1,8 +1,9 @@
-import CollisionDetection from './collision-detection.js'
+import CollisionDetection from './collision-detection.js';
+import DrawCanvas from './draw-canvas.js';
 
 const GameEngine = {
 
-    VELOCITY: 7,
+    VELOCITY: 3,
     CANVAS_WIDTH: 720,
     CANVAS_HEIGHT: 480,
     CANVAS_CENTER: {
@@ -17,15 +18,159 @@ const GameEngine = {
     map: {},
 
     player:{
-        x: 2098,
-        y: 592,
+        x: 2030,
+        y: 560,
         width: 40,
-        height: 40
+        height: 50
     },
 
     keyPressed: {},
 
-    obstacles:[],
+    obstacles:[
+        {
+            type: 'line',
+            x1: 1958,
+            y1: 82,
+            x2: 1795,
+            y2: 256
+        },
+        {
+            type: 'line',
+            x1: 1958,
+            y1: 82,
+            x2: 2490,
+            y2: 82
+        },
+        {
+            type: 'line',
+            x1: 2490,
+            y1: 82,
+            x2: 2730,
+            y2: 331
+        },
+        {
+            type: 'line',
+            x1: 2730,
+            y1: 331,
+            x2: 2730,
+            y2: 530
+        },
+        {
+            type: 'line',
+            x1: 1795,
+            y1: 256,
+            x2: 1795,
+            y2: 530
+        },
+        {
+            type: 'line',
+            x1: 2515,
+            y1: 1023,
+            x2: 2730,
+            y2: 810
+        },
+        {
+            type: 'line',
+            x1: 2515,
+            y1: 1023,
+            x2: 2311,
+            y2: 1023
+        },
+        {
+            type: 'line',
+            x1: 2205,
+            y1: 1023,
+            x2: 2005,
+            y2: 1023
+        },
+        {
+            type: 'line',
+            x1: 1800,
+            y1: 815,
+            x2: 2005,
+            y2: 1023
+        },
+        {
+            type: 'line',
+            x1: 1800,
+            y1: 815,
+            x2: 1800,
+            y2: 615
+        },
+        {
+            type: 'line',
+            x1: 2730,
+            y1: 616,
+            x2: 2730,
+            y2: 810
+        },
+        
+
+        {
+            type: 'circle',
+            x: 2000,
+            y:795,
+            radius: 84
+        },
+        {
+            type: 'circle',
+            x: 2075,
+            y:795,
+            radius: 84
+        },
+
+        {
+            type: 'circle',
+            x: 2415,
+            y:795,
+            radius: 84
+        },
+        {
+            type: 'circle',
+            x: 2485,
+            y:795,
+            radius: 84
+        },
+
+        {
+            type: 'circle',
+            x: 2210,
+            y: 585,
+            radius: 84
+        },
+        {
+            type: 'circle',
+            x: 2281,
+            y: 585,
+            radius: 84
+        },
+
+        {
+            type: 'circle',
+            x: 2000,
+            y: 362,
+            radius: 84
+        },
+        {
+            type: 'circle',
+            x: 2071,
+            y: 362,
+            radius: 84
+        },
+
+        {
+            type: 'circle',
+            x: 2415,
+            y: 362,
+            radius: 84
+        },
+        {
+            type: 'circle',
+            x: 2486,
+            y: 362,
+            radius: 84
+        }
+    ],
 
     setDevMode( mode ){
         this.DEV = mode;
@@ -83,22 +228,22 @@ const GameEngine = {
 
     movePlayer(){
         if( this.keyPressed["ArrowUp"] ){
-            if( !CollisionDetection.collisionDetection( this.obstacles, { ...this.player, y: this.player.y - this.VELOCITY }, this.canvas ) ){
+            if( !CollisionDetection.collisionDetection( this.obstacles, { ...this.player, y: this.player.y - this.VELOCITY } ) ){
                 this.player.y -= this.VELOCITY;
             }
         }
         if( this.keyPressed["ArrowRight"] ){
-            if( !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x + this.VELOCITY }, this.canvas ) ){
+            if( !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x + this.VELOCITY } ) ){
                 this.player.x += this.VELOCITY;
             }
         }
         if( this.keyPressed["ArrowDown"] ){
-            if( !CollisionDetection.collisionDetection( this.obstacles, {...this.player, y: this.player.y + this.VELOCITY }, this.canvas ) ){
+            if( !CollisionDetection.collisionDetection( this.obstacles, {...this.player, y: this.player.y + this.VELOCITY } ) ){
                 this.player.y += this.VELOCITY;
             }
         }
         if( this.keyPressed["ArrowLeft"] ){
-            if( !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x - this.VELOCITY }, this.canvas ) ){
+            if( !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x - this.VELOCITY } ) ){
                 this.player.x -= this.VELOCITY;
             }
         }
@@ -107,45 +252,18 @@ const GameEngine = {
             this.INPUT_DEV_MODE.value = `X: ${this.player.x} - Y: ${this.player.y}`;
     },
 
-    drawBackground(){
-        this.ctx.fillStyle = "black";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    },
-
-    drawMap(){
-        this.ctx.drawImage(
-            this.map,
-            this.player.x - 100, //img start x
-            this.player.y - 100, //img start y
-            500, //img width size
-            500, //img height size
-            0, //canvas initial x
-            0, //canvas initial y
-            this.canvas.width, //canvas width size
-            this.canvas.height //canvas height size
-        );
-    },
-
-    drawPlayer(){
-        this.ctx.fillStyle = "red";
-
-        this.ctx.fillRect( this.CANVAS_CENTER.x, this.CANVAS_CENTER.y, this.player.width, this.player.height);
-    },
-
-    drawObstacles(){
-
-    },
-
     run(){
 
         this.movePlayer();
         
-        this.drawBackground();
-        this.drawMap();
-        this.drawPlayer();
+        //Background
+        DrawCanvas.drawRect(this.ctx, 0, 0, this.canvas.width, this.canvas.height, "green");
+        DrawCanvas.drawMap( this.canvas, this.ctx, this.map, this.player );
+        //Player
+        DrawCanvas.drawPlayer(this.ctx, this.canvas, this.player, "red");
 
         if( this.DEV ){
-            this.drawObstacles();
+            DrawCanvas.drawObjects(this.obstacles, this.ctx, this.CANVAS_CENTER, this.player, "blue", this.MAP_ZOOM);
         }
 
         requestAnimationFrame( () => this.run() );
