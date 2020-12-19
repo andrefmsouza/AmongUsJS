@@ -109,6 +109,23 @@ const DrawCanvas = {
         let centerY = canvas.height / 2 - height / 2;
 
         ctx.fillRect( centerX, centerY, width, height); 
+    },
+    drawServerPlayers(ctx, canvas, serverPlayers, color, player, playerRefCanvas){
+        ctx.fillStyle = color;
+
+        serverPlayers.forEach( (serverPlayer) => {
+
+            if(serverPlayer.serverIndex == player.serverIndex || serverPlayer.status != 'alive')
+                return;
+
+
+            let positionCanvas = {
+                x: playerRefCanvas.x + (serverPlayer.x - player.x),
+                y: playerRefCanvas.y + (serverPlayer.y - player.y)
+            }
+
+            ctx.fillRect( positionCanvas.x, positionCanvas.y, serverPlayer.width, serverPlayer.height);
+        } );
     }
 }
 

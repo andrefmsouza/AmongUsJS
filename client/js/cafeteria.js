@@ -1,9 +1,10 @@
 const Cafeteria = {
     obstacles: [
+        //Paredes
         {
             type: 'line',
             x1: 1800,
-            y1: 530,
+            y1: 500,
             x2: 1800,
             y2: 290
         },
@@ -33,7 +34,7 @@ const Cafeteria = {
             x1: 2727,
             y1: 360,
             x2: 2727,
-            y2: 530
+            y2: 500
         },
         {
             type: 'line',
@@ -77,6 +78,40 @@ const Cafeteria = {
             x2: 1800,
             y2: 616
         },
+
+        //Corredor da esquerda
+        {
+            type: 'line',
+            x1: 1800,
+            y1: 500,
+            x2: 1700,
+            y2: 500
+        },
+        {
+            type: 'line',
+            x1: 1800,
+            y1: 616,
+            x2: 1700,
+            y2: 616
+        },
+
+        //Corredor da direita
+        {
+            type: 'line',
+            x1: 2727,
+            y1: 500,
+            x2: 2815,
+            y2: 500
+        },
+        {
+            type: 'line',
+            x1: 2727,
+            y1: 615,
+            x2: 2815,
+            y2: 615
+        },
+
+        //Mesas
         {
             type: 'circle',
             x: 2000,
@@ -89,7 +124,6 @@ const Cafeteria = {
             y:795,
             radius: 84
         },
-
         {
             type: 'circle',
             x: 2415,
@@ -115,7 +149,6 @@ const Cafeteria = {
             y: 585,
             radius: 84
         },
-
         {
             type: 'circle',
             x: 2000,

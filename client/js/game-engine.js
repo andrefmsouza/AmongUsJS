@@ -1,6 +1,8 @@
 import CollisionDetection from './collision-detection.js';
 import DrawCanvas from './draw-canvas.js';
+
 import Cafeteria from './cafeteria.js';
+import Weapons from './weapons.js';
 
 const GameEngine = {
 
@@ -19,18 +21,45 @@ const GameEngine = {
     map: {},
 
     player:{
-        x: 2030,
-        y: 560,
+        x: 2465,
+        y: 545,
         width: 40,
         height: 50,
-        status: 'alive'
+        status: 'alive',
+        serverIndex: -1
     },
+    serverPlayers: [],
+
+    socket: {},
 
     keyPressed: {},
 
     obstacles:[
-        ...Cafeteria.obstacles
+        ...Cafeteria.obstacles,
+        ...Weapons.obstacles
     ],
+
+    initConnection(socket){
+        this.socket = socket;
+
+        this.socket.emit('new player', this.player);
+
+        this.socket.on('player index', (index) => this.setPlayerIndex(index) );
+
+        this.socket.on('players', (players) => this.setServerPlayers(players) );
+    },
+
+    setPlayerIndex(index){
+        this.player.serverIndex = index;
+    },
+
+    setServerPlayers(players){
+        this.serverPlayers = players;
+    },
+
+    sendPlayerPositionToServer(){
+        this.socket.emit('update player', this.player);
+    },
 
     setDevMode( mode ){
         this.DEV = mode;
@@ -96,25 +125,35 @@ const GameEngine = {
     },
 
     movePlayer(){
+        let sendUpdate = false;
         if( this.keyPressed["ArrowUp"] ){
             if( this.player.status != 'alive' || !CollisionDetection.collisionDetection( this.obstacles, { ...this.player, y: this.player.y - this.VELOCITY } ) ){
                 this.player.y -= this.VELOCITY;
+                sendUpdate = true;
             }
         }
         if( this.keyPressed["ArrowRight"] ){
             if( this.player.status != 'alive' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x + this.VELOCITY } ) ){
                 this.player.x += this.VELOCITY;
+                sendUpdate = true;
             }
         }
         if( this.keyPressed["ArrowDown"] ){
             if( this.player.status != 'alive' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, y: this.player.y + this.VELOCITY } ) ){
                 this.player.y += this.VELOCITY;
+                sendUpdate = true;
             }
         }
         if( this.keyPressed["ArrowLeft"] ){
             if( this.player.status != 'alive' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x - this.VELOCITY } ) ){
                 this.player.x -= this.VELOCITY;
+                sendUpdate = true;
             }
+        }
+
+        
+        if(sendUpdate){
+            this.sendPlayerPositionToServer();
         }
 
         if( this.DEV )
@@ -132,6 +171,8 @@ const GameEngine = {
         //Background
         DrawCanvas.drawRect(this.ctx, 0, 0, this.canvas.width, this.canvas.height, "green");
         DrawCanvas.drawMap( this.canvas, this.ctx, this.map, this.player );
+        //Server Players
+        DrawCanvas.drawServerPlayers(this.ctx, this.canvas, this.serverPlayers, "white", this.player, this.PLAYER_REF_CANVAS);
         //Player
         DrawCanvas.drawPlayer(this.ctx, this.canvas, this.player, "red");
 

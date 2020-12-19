@@ -1,0 +1,20 @@
+{
+  "name": "among-us-server",
+  "version": "1.0.0",
+  "description": "Among Us JS Server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": [
+    "amongus",
+    "clone"
+  ],
+  "author": "André Souza",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "socket.io": "^3.0.4"
+  }
+}
