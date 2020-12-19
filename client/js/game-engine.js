@@ -14,6 +14,7 @@ const GameEngine = {
         y: 0
     },
     DEV: true,
+    SINGLE_PLAYER: false,
     INPUT_DEV_MODE: {},
 
     canvas: {},
@@ -47,6 +48,10 @@ const GameEngine = {
         this.socket.on('player index', (index) => this.setPlayerIndex(index) );
 
         this.socket.on('players', (players) => this.setServerPlayers(players) );
+    },
+
+    setSinglePlayer(mode){
+        this.SINGLE_PLAYER = mode;
     },
 
     setPlayerIndex(index){
@@ -152,7 +157,7 @@ const GameEngine = {
         }
 
         
-        if(sendUpdate){
+        if(sendUpdate && this.SINGLE_PLAYER == false){
             this.sendPlayerPositionToServer();
         }
 
