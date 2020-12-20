@@ -1,7 +1,8 @@
 import GameEngine from './game-engine.js';
 
-
 function main(){
+
+    GameEngine.createPlayer();
 
     try{
         GameEngine.initConnection( io('http://localhost:3000', {transports: ['websocket', 'polling', 'flashsocket']}) );
@@ -15,7 +16,13 @@ function main(){
     GameEngine.initListeners();
 
     GameEngine.setMap('./img/theSkeldLQ.png').then( () => {
-        requestAnimationFrame( () => GameEngine.run() );
+        GameEngine.initializeSprites('./img/sprites.png').then( () => {
+
+            GameEngine.setColorPlayer( 'red' );
+            requestAnimationFrame( () => GameEngine.run() );
+
+           //requestAnimationFrame( () => GameEngine.run() )
+        } );
     } );
 }
 

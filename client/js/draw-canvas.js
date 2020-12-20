@@ -13,6 +13,34 @@ const DrawCanvas = {
         );
     },
 
+    drawPlayerSprite(ctx, player, playerReference, playerRefCanvas, imgSprite){
+        let positionCanvas = {
+            x: playerRefCanvas.x + (player.x - playerReference.x),
+            y: playerRefCanvas.y + (player.y - playerReference.y)
+        }
+
+        if( player.status == 'stopped' ){
+            var sprite = player.sprites.stopped;
+        }else if( player.status == 'running' ){
+            var sprite = player.sprites.running[player.spriteIndex];
+        }else if( player.status == 'dead' ){
+            var sprite = player.sprites.ghost[player.spriteIndex];
+        }
+
+        ctx.save();
+
+        //Flip player
+        if( player.direction != 'right' ){
+            ctx.scale( -1, 1 );
+            positionCanvas.x = ( positionCanvas.x + player.width ) * -1;
+        }else
+            ctx.scale( 1, 1 );
+
+        ctx.drawImage( imgSprite, sprite.x, sprite.y, sprite.width, sprite.height, positionCanvas.x, positionCanvas.y, player.width, player.height );
+
+        ctx.restore();
+    },
+
     drawRect(ctx, x, y, width, height, color){
         ctx.fillStyle = color;
 
@@ -115,7 +143,7 @@ const DrawCanvas = {
 
         serverPlayers.forEach( (serverPlayer) => {
 
-            if(serverPlayer.serverIndex == player.serverIndex || serverPlayer.status != 'alive')
+            if(serverPlayer.serverIndex == player.serverIndex || serverPlayer.status == 'dead')
                 return;
 
 

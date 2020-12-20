@@ -1,8 +1,9 @@
 import CollisionDetection from './collision-detection.js';
 import DrawCanvas from './draw-canvas.js';
 
-import Cafeteria from './cafeteria.js';
-import Weapons from './weapons.js';
+import Cafeteria from './map-area/cafeteria.js';
+import Weapons from './map-area/weapons.js';
+import Player from './player.js';
 
 const GameEngine = {
 
@@ -21,14 +22,11 @@ const GameEngine = {
     ctx: {},
     map: {},
 
-    player:{
-        x: 2465,
-        y: 545,
-        width: 40,
-        height: 50,
-        status: 'alive',
-        serverIndex: -1
-    },
+    player:{},
+    originalSprite: "",
+
+    sprites: {},
+
     serverPlayers: [],
 
     socket: {},
@@ -40,6 +38,93 @@ const GameEngine = {
         ...Weapons.obstacles
     ],
 
+    colors:{
+        red: {
+            red: [193,23,1],
+            blue: [117,10,58],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },
+        brown: {
+            red: [112,74,19],
+            blue: [92,39,16],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },
+        orange: {
+            red: [235,127,0],
+            blue: [176,64,0],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },
+        yellow: {
+            red: [246,248,28],
+            blue: [193,137,0],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },
+        pink: {
+            red: [232,83,192],
+            blue: [167,39,180],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },
+        purple: {
+            red: [105,40,195],
+            blue: [57,17,129],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },
+        blue: {
+            red: [17,36,218],
+            blue: [7,11,148],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },
+        cyan: {
+            red: [183,254,216],
+            blue: [53,167,193],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },
+        green: {
+            red: [34,127,24],
+            blue: [19,77,42],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },
+        lime: {
+            red: [97,240,0],
+            blue: [45,168,42],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },
+        white: {
+            red: [214,224,242],
+            blue: [132,147,195],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },
+        black: {
+            red: [63,71,79],
+            blue: [30,31,39],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },
+        fortegreen: {
+            red: [46,152,73],
+            blue: [22,63,21],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },
+        tan: {
+            red: [145,137,117],
+            blue: [80,66,61],
+            darkGreen: [75,100,111],
+            lightGreen: [155,198,222]
+        },  
+    },
+
     initConnection(socket){
         this.socket = socket;
 
@@ -48,6 +133,10 @@ const GameEngine = {
         this.socket.on('player index', (index) => this.setPlayerIndex(index) );
 
         this.socket.on('players', (players) => this.setServerPlayers(players) );
+    },
+
+    createPlayer(){
+        this.player = new Player();
     },
 
     setSinglePlayer(mode){
@@ -94,11 +183,32 @@ const GameEngine = {
             this.BTN_DEV_MODE = document.createElement("BUTTON");
             this.BTN_DEV_MODE.innerHTML = `Player status - ${this.player.status}`;
             this.BTN_DEV_MODE.onclick = () =>{
-                this.player.status =  this.player.status == 'alive' ? 'dead' : 'alive';
+                this.player.status =  this.player.status != 'dead' ? 'dead' : 'stopped';
                 this.BTN_DEV_MODE.innerHTML = `Player status - ${this.player.status}`;
             };
 
             document.body.append( this.BTN_DEV_MODE );
+
+            document.body.append( document.createElement("BR") );
+
+
+            //CHANGE COLOR
+            let colors = Object.entries(this.colors);
+
+            for(let i =0; i < colors.length ;i++){
+                let color = colors[i];
+
+                let newColor =  document.createElement("BUTTON");
+                newColor.classList.add('setColor');
+                newColor.style.backgroundColor = `rgb( ${color[1].red[0]} , ${color[1].red[1]}, ${color[1].red[2]})`;
+
+                newColor.onclick = () =>{
+                    this.setColorPlayer(color[0], () => {  } );
+                };
+
+                document.body.append( newColor );
+
+            }
         }
 
         return new Promise( (resolve, reject) => {
@@ -110,8 +220,96 @@ const GameEngine = {
         
     },
 
+    initializeSprites(path){
+        
+        return new Promise( (resolve, reject) => {
+            let originalSprite = new Image();
+
+            originalSprite.onload = () => {
+                resolve();
+            }
+
+            originalSprite.src = path;
+
+            this.sprites.original = originalSprite;
+        });
+
+    },
+
+    recolor(sprite, oldRed, oldGreen, oldBlue, newRed, newGreen, newBlue){
+        return new Promise( (resolve, reject) => {
+            var newSpriteCanvas = document.createElement('canvas');
+            var newSpriteCtx= newSpriteCanvas.getContext("2d");
+            var newSpriteWidth = sprite.width;
+            var newSpriteHeight = sprite.height;
+
+            newSpriteCanvas.width = newSpriteWidth;
+            newSpriteCanvas.height = newSpriteHeight;
+
+            // draw the image on the temporary canvas
+            newSpriteCtx.drawImage(sprite, 0, 0, newSpriteWidth, newSpriteHeight);
+
+            // pull the entire image into an array of pixel data
+            var imageData = newSpriteCtx.getImageData(0, 0, newSpriteWidth, newSpriteHeight);
+
+            // examine every pixel, 
+            // change any old rgb to the new-rgb
+            for ( var i=0; i < imageData.data.length; i+=4 )
+            {
+                // is this pixel the old rgb?
+                if(imageData.data[i] == oldRed &&
+                    imageData.data[i+1] == oldGreen &&
+                    imageData.data[i+2] == oldBlue
+                ){
+                    // change to your new rgb
+                    imageData.data[i] = newRed;
+                    imageData.data[i+1] = newGreen;
+                    imageData.data[i+2] = newBlue;
+                }
+            }
+            // put the altered data back on the canvas  
+            newSpriteCtx.putImageData(imageData,0,0);
+            // put the re-colored image back on the image
+            sprite.onload = () => {
+                resolve(sprite);
+            };
+            
+            sprite.src = newSpriteCanvas.toDataURL('image/png');
+        });
+    },
+
+    setColorSprite(sprite, color, callback){
+
+        //RED
+        this.recolor(sprite, 254,0,0, this.colors[color].red[0], this.colors[color].red[1], this.colors[color].red[2] ).then( (sprite) => 
+        this.recolor(sprite, 250,0,2, this.colors[color].red[0], this.colors[color].red[1], this.colors[color].red[2] ).then( (sprite) => 
+        this.recolor(sprite, 249,0,2, this.colors[color].red[0], this.colors[color].red[1], this.colors[color].red[2] ).then( (sprite) => 
+        this.recolor(sprite, 247,0,2, this.colors[color].red[0], this.colors[color].red[1], this.colors[color].red[2] ).then( (sprite) => 
+        this.recolor(sprite, 243,0,9, this.colors[color].red[0], this.colors[color].red[1], this.colors[color].red[2] ).then( (sprite) => 
+        this.recolor(sprite, 245,0,3, this.colors[color].red[0], this.colors[color].red[1], this.colors[color].red[2] ).then( (sprite) => 
+
+        //BLUE
+        this.recolor(sprite, 0,0,254, this.colors[color].blue[0], this.colors[color].blue[1], this.colors[color].blue[2] ).then( (sprite) => 
+        this.recolor(sprite, 0,0,250, this.colors[color].blue[0], this.colors[color].blue[1], this.colors[color].blue[2] ).then( (sprite) => 
+        this.recolor(sprite, 0,0,253, this.colors[color].blue[0], this.colors[color].blue[1], this.colors[color].blue[2] ).then( (sprite) => 
+        this.recolor(sprite, 0,0,252, this.colors[color].blue[0], this.colors[color].blue[1], this.colors[color].blue[2] ).then( (sprite) => 
+        this.recolor(sprite, 0,0,247, this.colors[color].blue[0], this.colors[color].blue[1], this.colors[color].blue[2] ).then( (sprite) => 
+        
+        //DARK GREEN
+        this.recolor(sprite, 0,125,0, this.colors[color].darkGreen[0], this.colors[color].darkGreen[1], this.colors[color].darkGreen[2] ).then( (sprite) => 
+        this.recolor(sprite, 0,126,0, this.colors[color].darkGreen[0], this.colors[color].darkGreen[1], this.colors[color].darkGreen[2] ).then( (sprite) => 
+
+        //LIGHT GREEN
+        this.recolor(sprite, 1,252,1, this.colors[color].lightGreen[0], this.colors[color].lightGreen[1], this.colors[color].lightGreen[2] ).then( (sprite) => 
+        this.recolor(sprite, 0,253,0, this.colors[color].lightGreen[0], this.colors[color].lightGreen[1], this.colors[color].lightGreen[2] ).then( (sprite) => 
+
+        callback( sprite )
+        
+        )))))))))))))));
+    },
+
     initListeners(){
-        document.addEventListener("keydown", (evet) => GameEngine.keyDownListener(event) );
+        document.addEventListener("keydown", (event) => GameEngine.keyDownListener(event) );
         document.addEventListener("keyup", (event) => GameEngine.keyUpListener(event) );
     },
 
@@ -130,36 +328,58 @@ const GameEngine = {
     },
 
     movePlayer(){
-        let sendUpdate = false;
+        let positionUpdated = false;
         if( this.keyPressed["ArrowUp"] ){
-            if( this.player.status != 'alive' || !CollisionDetection.collisionDetection( this.obstacles, { ...this.player, y: this.player.y - this.VELOCITY } ) ){
+            if( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, { ...this.player, y: this.player.y - this.VELOCITY } ) ){
                 this.player.y -= this.VELOCITY;
-                sendUpdate = true;
+                positionUpdated = true;
             }
         }
         if( this.keyPressed["ArrowRight"] ){
-            if( this.player.status != 'alive' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x + this.VELOCITY } ) ){
+            if( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x + this.VELOCITY } ) ){
                 this.player.x += this.VELOCITY;
-                sendUpdate = true;
+                this.player.direction = 'right';
+                positionUpdated = true;
             }
         }
         if( this.keyPressed["ArrowDown"] ){
-            if( this.player.status != 'alive' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, y: this.player.y + this.VELOCITY } ) ){
+            if( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, y: this.player.y + this.VELOCITY } ) ){
                 this.player.y += this.VELOCITY;
-                sendUpdate = true;
+                positionUpdated = true;
             }
         }
         if( this.keyPressed["ArrowLeft"] ){
-            if( this.player.status != 'alive' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x - this.VELOCITY } ) ){
+            if( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x - this.VELOCITY } ) ){
                 this.player.x -= this.VELOCITY;
-                sendUpdate = true;
+                this.player.direction = 'left';
+                positionUpdated = true;
             }
         }
 
-        
-        if(sendUpdate && this.SINGLE_PLAYER == false){
-            this.sendPlayerPositionToServer();
+        if(positionUpdated || this.player.status == 'dead' ){
+            this.player.nextSpriteCounter++;
+            
+            if( this.player.nextSpriteCounter % 6 == 0 )
+                this.player.spriteIndex++;
+
+            
+            if( this.player.status == 'dead' ){
+                if( this.player.spriteIndex >= this.player.sprites.ghost.length )
+                    this.player.spriteIndex = 0;
+            }else{
+                if( this.player.spriteIndex >= this.player.sprites.running.length )
+                    this.player.spriteIndex = 0;
+
+                this.player.status = 'running';
+            }
+
+            if(this.SINGLE_PLAYER == false){
+                this.sendPlayerPositionToServer();
+            }
+        }else{
+            this.player.status = 'stopped';
         }
+        
 
         if( this.DEV )
             this.INPUT_DEV_MODE.value = `X: ${this.player.x} - Y: ${this.player.y}`;
@@ -169,20 +389,44 @@ const GameEngine = {
         this.player.status = status
     },
 
+    setColorPlayer(color){
+
+        this.player.color = color;
+        
+        if( !this.sprites[this.player.color] ){
+            
+            let newSprite = new Image();
+            
+            newSprite.src = this.sprites.original.src;
+            
+            this.setColorSprite( newSprite, this.player.color, (newSprite) => {
+                this.sprites[this.player.color] = newSprite;
+            } )
+        }
+
+    },
+
     run(){
 
-        this.movePlayer();
-        
-        //Background
-        DrawCanvas.drawRect(this.ctx, 0, 0, this.canvas.width, this.canvas.height, "green");
-        DrawCanvas.drawMap( this.canvas, this.ctx, this.map, this.player );
-        //Server Players
-        DrawCanvas.drawServerPlayers(this.ctx, this.canvas, this.serverPlayers, "white", this.player, this.PLAYER_REF_CANVAS);
-        //Player
-        DrawCanvas.drawPlayer(this.ctx, this.canvas, this.player, "red");
+        try{
+            this.movePlayer();
+            
+            //Background
+            DrawCanvas.drawRect(this.ctx, 0, 0, this.canvas.width, this.canvas.height, "green");
+            DrawCanvas.drawMap( this.canvas, this.ctx, this.map, this.player );
+            //Server Players
+            DrawCanvas.drawServerPlayers(this.ctx, this.canvas, this.serverPlayers, "white", this.player, this.PLAYER_REF_CANVAS);
+            //Player
+            //DrawCanvas.drawPlayer(this.ctx, this.canvas, this.player, "red");
+            let playerSprite = this.sprites[this.player.color] ? this.player.color : 'original';
 
-        if( this.DEV ){
-            DrawCanvas.drawObjects(this.obstacles, this.ctx, this.PLAYER_REF_CANVAS, this.player, "red");
+            DrawCanvas.drawPlayerSprite(this.ctx, this.player, this.player, this.PLAYER_REF_CANVAS, this.sprites[playerSprite]);
+
+            if( this.DEV ){
+                DrawCanvas.drawObjects(this.obstacles, this.ctx, this.PLAYER_REF_CANVAS, this.player, "red");
+            }
+        }catch(e){
+            console.log(e);
         }
 
         requestAnimationFrame( () => this.run() );
