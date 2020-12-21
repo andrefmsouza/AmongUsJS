@@ -15,8 +15,10 @@ const DrawCanvas = {
 
     drawPlayerSprite(ctx, player, playerReference, playerRefCanvas, imgSprite){
         let positionCanvas = {
-            x: playerRefCanvas.x + (player.x - playerReference.x),
-            y: playerRefCanvas.y + (player.y - playerReference.y)
+            x: playerRefCanvas.x + (player.x - playerReference.x) - 5,
+            y: playerRefCanvas.y + (player.y - playerReference.y) - 20,
+            width: player.width + 10,
+            height: player.height + 20
         }
 
         if( player.status == 'stopped' ){
@@ -32,11 +34,11 @@ const DrawCanvas = {
         //Flip player
         if( player.direction != 'right' ){
             ctx.scale( -1, 1 );
-            positionCanvas.x = ( positionCanvas.x + player.width ) * -1;
+            positionCanvas.x = ( positionCanvas.x + positionCanvas.width ) * -1;
         }else
             ctx.scale( 1, 1 );
 
-        ctx.drawImage( imgSprite, sprite.x, sprite.y, sprite.width, sprite.height, positionCanvas.x, positionCanvas.y, player.width, player.height );
+        ctx.drawImage( imgSprite, sprite.x, sprite.y, sprite.width, sprite.height, positionCanvas.x, positionCanvas.y, positionCanvas.width, positionCanvas.height );
 
         ctx.restore();
     },

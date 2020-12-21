@@ -226,6 +226,22 @@ const GameEngine = {
             let originalSprite = new Image();
 
             originalSprite.onload = () => {
+                //CREATE COLORS
+                let colors = Object.entries(this.colors);
+
+                for(let i =0; i < colors.length ;i++){
+                    let color = colors[i][0];
+            
+                    let newSprite = new Image();
+                    
+                    newSprite.src = this.sprites.original.src;
+                    
+                    this.setColorSprite( newSprite, color).then( (newSprite) => {
+                        this.sprites[color] = newSprite;
+                    } )
+                    
+                }
+
                 resolve();
             }
 
@@ -236,7 +252,78 @@ const GameEngine = {
 
     },
 
-    recolor(sprite, oldRed, oldGreen, oldBlue, newRed, newGreen, newBlue){
+    verifyColor(color, newColors){
+        //RED
+        if( color[0] >= 25 &&   //red
+            color[1] <= 25 && //green
+            color[2] <= 75 //blue
+        ){
+            return [
+                newColors.red[0],
+                newColors.red[1],
+                newColors.red[2],
+            ];
+        //BLUE
+        }else if( color[0] <= 50 &&   //red
+            color[1] <= 50 && //green
+            color[2] >= 50 //blue
+        ){
+            return [
+                newColors.blue[0],
+                newColors.blue[1],
+                newColors.blue[2],
+            ];
+        //DARK GREEN
+        }else if( color[0] <= 50 &&   //red
+            color[1] <= 150 && //green
+            color[1] >= 25 && //green
+            color[2] <= 50 //blue
+        ){
+            return [
+                newColors.darkGreen[0],
+                newColors.darkGreen[1],
+                newColors.darkGreen[2],
+            ];
+        //LIGHT GREEN
+        }else if( color[0] <= 50 &&   //red
+            color[1] >= 150 && //green
+            color[2] <= 50 //blue
+        ){
+            return [
+                newColors.lightGreen[0],
+                newColors.lightGreen[1],
+                newColors.lightGreen[2],
+            ];
+        }
+
+        return color;
+    },
+
+    setColorSprite(sprite, color){
+
+       let newColors = {
+            red: [
+                this.colors[color].red[0],
+                this.colors[color].red[1],
+                this.colors[color].red[2]
+            ],
+            blue: [
+                this.colors[color].blue[0],
+                this.colors[color].blue[1],
+                this.colors[color].blue[2]
+            ],
+            darkGreen: [
+                this.colors[color].darkGreen[0],
+                this.colors[color].darkGreen[1],
+                this.colors[color].darkGreen[2]
+            ],
+            lightGreen: [
+                this.colors[color].lightGreen[0],
+                this.colors[color].lightGreen[1],
+                this.colors[color].lightGreen[2]
+            ]
+        }
+
         return new Promise( (resolve, reject) => {
             var newSpriteCanvas = document.createElement('canvas');
             var newSpriteCtx= newSpriteCanvas.getContext("2d");
@@ -256,16 +343,15 @@ const GameEngine = {
             // change any old rgb to the new-rgb
             for ( var i=0; i < imageData.data.length; i+=4 )
             {
-                // is this pixel the old rgb?
-                if(imageData.data[i] == oldRed &&
-                    imageData.data[i+1] == oldGreen &&
-                    imageData.data[i+2] == oldBlue
-                ){
-                    // change to your new rgb
-                    imageData.data[i] = newRed;
-                    imageData.data[i+1] = newGreen;
-                    imageData.data[i+2] = newBlue;
-                }
+                let colorVerified = this.verifyColor( [
+                    imageData.data[i],
+                    imageData.data[i+1],
+                    imageData.data[i+2]
+                ], newColors );
+
+                imageData.data[i] = colorVerified[0];
+                imageData.data[i+1] = colorVerified[1];
+                imageData.data[i+2] = colorVerified[2];
             }
             // put the altered data back on the canvas  
             newSpriteCtx.putImageData(imageData,0,0);
@@ -276,36 +362,6 @@ const GameEngine = {
             
             sprite.src = newSpriteCanvas.toDataURL('image/png');
         });
-    },
-
-    setColorSprite(sprite, color, callback){
-
-        //RED
-        this.recolor(sprite, 254,0,0, this.colors[color].red[0], this.colors[color].red[1], this.colors[color].red[2] ).then( (sprite) => 
-        this.recolor(sprite, 250,0,2, this.colors[color].red[0], this.colors[color].red[1], this.colors[color].red[2] ).then( (sprite) => 
-        this.recolor(sprite, 249,0,2, this.colors[color].red[0], this.colors[color].red[1], this.colors[color].red[2] ).then( (sprite) => 
-        this.recolor(sprite, 247,0,2, this.colors[color].red[0], this.colors[color].red[1], this.colors[color].red[2] ).then( (sprite) => 
-        this.recolor(sprite, 243,0,9, this.colors[color].red[0], this.colors[color].red[1], this.colors[color].red[2] ).then( (sprite) => 
-        this.recolor(sprite, 245,0,3, this.colors[color].red[0], this.colors[color].red[1], this.colors[color].red[2] ).then( (sprite) => 
-
-        //BLUE
-        this.recolor(sprite, 0,0,254, this.colors[color].blue[0], this.colors[color].blue[1], this.colors[color].blue[2] ).then( (sprite) => 
-        this.recolor(sprite, 0,0,250, this.colors[color].blue[0], this.colors[color].blue[1], this.colors[color].blue[2] ).then( (sprite) => 
-        this.recolor(sprite, 0,0,253, this.colors[color].blue[0], this.colors[color].blue[1], this.colors[color].blue[2] ).then( (sprite) => 
-        this.recolor(sprite, 0,0,252, this.colors[color].blue[0], this.colors[color].blue[1], this.colors[color].blue[2] ).then( (sprite) => 
-        this.recolor(sprite, 0,0,247, this.colors[color].blue[0], this.colors[color].blue[1], this.colors[color].blue[2] ).then( (sprite) => 
-        
-        //DARK GREEN
-        this.recolor(sprite, 0,125,0, this.colors[color].darkGreen[0], this.colors[color].darkGreen[1], this.colors[color].darkGreen[2] ).then( (sprite) => 
-        this.recolor(sprite, 0,126,0, this.colors[color].darkGreen[0], this.colors[color].darkGreen[1], this.colors[color].darkGreen[2] ).then( (sprite) => 
-
-        //LIGHT GREEN
-        this.recolor(sprite, 1,252,1, this.colors[color].lightGreen[0], this.colors[color].lightGreen[1], this.colors[color].lightGreen[2] ).then( (sprite) => 
-        this.recolor(sprite, 0,253,0, this.colors[color].lightGreen[0], this.colors[color].lightGreen[1], this.colors[color].lightGreen[2] ).then( (sprite) => 
-
-        callback( sprite )
-        
-        )))))))))))))));
     },
 
     initListeners(){
@@ -390,20 +446,7 @@ const GameEngine = {
     },
 
     setColorPlayer(color){
-
         this.player.color = color;
-        
-        if( !this.sprites[this.player.color] ){
-            
-            let newSprite = new Image();
-            
-            newSprite.src = this.sprites.original.src;
-            
-            this.setColorSprite( newSprite, this.player.color, (newSprite) => {
-                this.sprites[this.player.color] = newSprite;
-            } )
-        }
-
     },
 
     run(){
@@ -412,7 +455,7 @@ const GameEngine = {
             this.movePlayer();
             
             //Background
-            DrawCanvas.drawRect(this.ctx, 0, 0, this.canvas.width, this.canvas.height, "green");
+            DrawCanvas.drawRect(this.ctx, 0, 0, this.canvas.width, this.canvas.height, "black");
             DrawCanvas.drawMap( this.canvas, this.ctx, this.map, this.player );
             //Server Players
             DrawCanvas.drawServerPlayers(this.ctx, this.canvas, this.serverPlayers, "white", this.player, this.PLAYER_REF_CANVAS);

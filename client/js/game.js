@@ -18,7 +18,7 @@ function main(){
     GameEngine.setMap('./img/theSkeldLQ.png').then( () => {
         GameEngine.initializeSprites('./img/sprites.png').then( () => {
 
-            GameEngine.setColorPlayer( 'red' );
+            GameEngine.setColorPlayer( 'black' );
             requestAnimationFrame( () => GameEngine.run() );
 
            //requestAnimationFrame( () => GameEngine.run() )
