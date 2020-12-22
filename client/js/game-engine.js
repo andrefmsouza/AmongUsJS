@@ -2,6 +2,7 @@ import CollisionDetection from './collision-detection.js';
 import DrawCanvas from './draw-canvas.js';
 
 import Cafeteria from './map-area/cafeteria.js';
+import Navigation from './map-area/navigation.js';
 import O2 from './map-area/o2.js';
 import Weapons from './map-area/weapons.js';
 import Player from './player.js';
@@ -37,7 +38,8 @@ const GameEngine = {
     obstacles:[
         ...Cafeteria.obstacles,
         ...Weapons.obstacles,
-        ...O2.obstacles
+        ...O2.obstacles,
+        ...Navigation.obstacles
     ],
 
     colors:{
