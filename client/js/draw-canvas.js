@@ -140,6 +140,7 @@ const DrawCanvas = {
 
         ctx.fillRect( centerX, centerY, width, height); 
     },
+    
     drawServerPlayers(ctx, canvas, serverPlayers, color, player, playerRefCanvas){
         ctx.fillStyle = color;
 

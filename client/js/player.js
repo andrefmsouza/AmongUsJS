@@ -1,6 +1,6 @@
 const Player = function(){
-    this.x =  2465;
-    this.y =  545;
+    this.x =  3100;
+    this.y =  833;
     this.width = 40;
     this.height = 50;
     this.status = 'stopped';

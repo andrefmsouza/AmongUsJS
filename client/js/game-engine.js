@@ -2,6 +2,7 @@ import CollisionDetection from './collision-detection.js';
 import DrawCanvas from './draw-canvas.js';
 
 import Cafeteria from './map-area/cafeteria.js';
+import O2 from './map-area/o2.js';
 import Weapons from './map-area/weapons.js';
 import Player from './player.js';
 
@@ -35,7 +36,8 @@ const GameEngine = {
 
     obstacles:[
         ...Cafeteria.obstacles,
-        ...Weapons.obstacles
+        ...Weapons.obstacles,
+        ...O2.obstacles
     ],
 
     colors:{
@@ -455,7 +457,7 @@ const GameEngine = {
             this.movePlayer();
             
             //Background
-            DrawCanvas.drawRect(this.ctx, 0, 0, this.canvas.width, this.canvas.height, "black");
+            DrawCanvas.drawRect(this.ctx, 0, 0, this.canvas.width, this.canvas.height, "green");
             DrawCanvas.drawMap( this.canvas, this.ctx, this.map, this.player );
             //Server Players
             DrawCanvas.drawServerPlayers(this.ctx, this.canvas, this.serverPlayers, "white", this.player, this.PLAYER_REF_CANVAS);
