@@ -6,6 +6,7 @@ import Navigation from './map-area/navigation.js';
 import O2 from './map-area/o2.js';
 import Weapons from './map-area/weapons.js';
 import Shields from './map-area/shields.js';
+import Communication from './map-area/communication.js';
 
 import Player from './player.js';
 
@@ -42,7 +43,8 @@ const GameEngine = {
         ...Weapons.obstacles,
         ...O2.obstacles,
         ...Navigation.obstacles,
-        ...Shields.obstacles
+        ...Shields.obstacles,
+        ...Communication.obstacles
     ],
 
     colors:{
