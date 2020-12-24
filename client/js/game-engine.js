@@ -395,26 +395,26 @@ const GameEngine = {
     movePlayer(){
         let positionUpdated = false;
         if( this.keyPressed["ArrowUp"] ){
-            if( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, { ...this.player, y: this.player.y - this.VELOCITY } ) ){
+            if( this.player.y - this.VELOCITY > 0 && ( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, { ...this.player, y: this.player.y - this.VELOCITY } ) ) ){
                 this.player.y -= this.VELOCITY;
                 positionUpdated = true;
             }
         }
         if( this.keyPressed["ArrowRight"] ){
-            if( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x + this.VELOCITY } ) ){
+            if( this.player.x + this.VELOCITY < this.map.width && ( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x + this.VELOCITY } ) ) ){
                 this.player.x += this.VELOCITY;
                 this.player.direction = 'right';
                 positionUpdated = true;
             }
         }
         if( this.keyPressed["ArrowDown"] ){
-            if( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, y: this.player.y + this.VELOCITY } ) ){
+            if( this.player.y + this.VELOCITY < this.map.height && ( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, y: this.player.y + this.VELOCITY } ) ) ){
                 this.player.y += this.VELOCITY;
                 positionUpdated = true;
             }
         }
         if( this.keyPressed["ArrowLeft"] ){
-            if( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x - this.VELOCITY } ) ){
+            if( this.player.x - this.VELOCITY > 0 && ( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x - this.VELOCITY } ) ) ){
                 this.player.x -= this.VELOCITY;
                 this.player.direction = 'left';
                 positionUpdated = true;
