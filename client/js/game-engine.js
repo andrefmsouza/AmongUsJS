@@ -27,6 +27,10 @@ const GameEngine = {
     ctx: {},
     map: {},
 
+    canvasCollision: {},
+    ctxCollision: {},
+    mapCollision: {},
+
     player:{},
     originalSprite: "",
 
@@ -182,6 +186,7 @@ const GameEngine = {
     setMap(path){
         this.map = new Image();
         this.map.src = path;
+        // this.map.src = './img/theSkeldLQ-MAP.png';
         
         if( this.DEV ){
             this.INPUT_DEV_MODE = document.createElement("INPUT");
@@ -221,8 +226,22 @@ const GameEngine = {
         }
 
         return new Promise( (resolve, reject) => {
-            this.map.onload = function() {
-                resolve();
+            this.map.onload = () => {
+                this.canvasCollision = document.createElement('canvas');
+                
+                
+                this.mapCollision = new Image();
+                this.mapCollision.src = './img/theSkeldLQ-MAP.png';
+
+                this.mapCollision.onload = () => {
+
+                    this.canvasCollision.width = this.mapCollision.width;
+                    this.canvasCollision.height = this.mapCollision.height;
+                    this.ctxCollision    = this.canvasCollision.getContext('2d');
+
+                    this.ctxCollision.drawImage( this.mapCollision, 0, 0 );
+                    resolve();
+                };
             };
         });
 
@@ -395,26 +414,26 @@ const GameEngine = {
     movePlayer(){
         let positionUpdated = false;
         if( this.keyPressed["ArrowUp"] ){
-            if( this.player.y - this.VELOCITY > 0 && ( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, { ...this.player, y: this.player.y - this.VELOCITY } ) ) ){
+            if( this.player.y - this.VELOCITY > 0 && ( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, { ...this.player, y: this.player.y - this.VELOCITY }, 1, this ) ) ){
                 this.player.y -= this.VELOCITY;
                 positionUpdated = true;
             }
         }
         if( this.keyPressed["ArrowRight"] ){
-            if( this.player.x + this.VELOCITY < this.map.width && ( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x + this.VELOCITY } ) ) ){
+            if( this.player.x + this.VELOCITY < this.map.width && ( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x + this.VELOCITY }, 1, this ) ) ){
                 this.player.x += this.VELOCITY;
                 this.player.direction = 'right';
                 positionUpdated = true;
             }
         }
         if( this.keyPressed["ArrowDown"] ){
-            if( this.player.y + this.VELOCITY < this.map.height && ( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, y: this.player.y + this.VELOCITY } ) ) ){
+            if( this.player.y + this.VELOCITY < this.map.height && ( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, y: this.player.y + this.VELOCITY }, 1, this ) ) ){
                 this.player.y += this.VELOCITY;
                 positionUpdated = true;
             }
         }
         if( this.keyPressed["ArrowLeft"] ){
-            if( this.player.x - this.VELOCITY > 0 && ( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x - this.VELOCITY } ) ) ){
+            if( this.player.x - this.VELOCITY > 0 && ( this.player.status == 'dead' || !CollisionDetection.collisionDetection( this.obstacles, {...this.player, x: this.player.x - this.VELOCITY }, 1, this ) ) ){
                 this.player.x -= this.VELOCITY;
                 this.player.direction = 'left';
                 positionUpdated = true;
@@ -469,7 +488,7 @@ const GameEngine = {
             //Server Players
             DrawCanvas.drawServerPlayers(this.ctx, this.canvas, this.serverPlayers, "white", this.player, this.PLAYER_REF_CANVAS);
             //Player
-            //DrawCanvas.drawPlayer(this.ctx, this.canvas, this.player, "red");
+            DrawCanvas.drawPlayer(this.ctx, this.canvas, this.player, "red");
             let playerSprite = this.sprites[this.player.color] ? this.player.color : 'original';
 
             DrawCanvas.drawPlayerSprite(this.ctx, this.player, this.player, this.PLAYER_REF_CANVAS, this.sprites[playerSprite]);

@@ -1,24 +1,39 @@
 const CollisionDetection = {
-    collisionDetection( obstacles, playerPosition, zoom = 1 ){
-        for( let i in obstacles){
-            let obstacle = obstacles[i];
-    
-            if(obstacle.type == 'line'){
-                if( CollisionDetection.lineRectCollision( obstacle, playerPosition, zoom ) )
-                    return true;
-            }else if(obstacle.type == 'circle'){
-                if( CollisionDetection.rectCircleCollision( obstacle, playerPosition, zoom ) )
-                    return true;
-            }else if(obstacle.type == 'rect'){
-                if( CollisionDetection.rectRectCollision( obstacle, playerPosition, zoom ) )
-                    return true;
-            }else if(obstacle.type == 'ellipse'){
-                if( CollisionDetection.lineRectCollision( obstacle, playerPosition, zoom ) )
-                    return true;
+    collisionDetection( obstacles, playerPosition, zoom = 1, GameEngine = {}){
+        let imgData = GameEngine.ctxCollision.getImageData( playerPosition.x, playerPosition.y, playerPosition.width, playerPosition.height );
+
+        for(let i = 0; i+4 <= imgData.data.length; i+=4 ){
+            if( 
+                imgData.data[i] != 255 ||
+                imgData.data[i+1] != 255 ||
+                imgData.data[i+2] != 255
+            ){
+                return true;
             }
         }
-    
+
         return false;
+        
+
+        // for( let i in obstacles){
+        //     let obstacle = obstacles[i];
+    
+        //     if(obstacle.type == 'line'){
+        //         if( CollisionDetection.lineRectCollision( obstacle, playerPosition, zoom ) )
+        //             return true;
+        //     }else if(obstacle.type == 'circle'){
+        //         if( CollisionDetection.rectCircleCollision( obstacle, playerPosition, zoom ) )
+        //             return true;
+        //     }else if(obstacle.type == 'rect'){
+        //         if( CollisionDetection.rectRectCollision( obstacle, playerPosition, zoom ) )
+        //             return true;
+        //     }else if(obstacle.type == 'ellipse'){
+        //         if( CollisionDetection.lineRectCollision( obstacle, playerPosition, zoom ) )
+        //             return true;
+        //     }
+        // }
+    
+        // return false;
     
     },
 
