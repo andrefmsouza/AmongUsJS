@@ -1,11 +1,41 @@
 const DrawCanvas = {
-    drawMap(canvas, ctx, map, player){
+    drawMap(canvas, ctx, map, player, dev = false, mapCollision = {}){
         ctx.drawImage(
             map,
             player.x - Math.floor(canvas.width / 2 ) + Math.floor(player.width / 2), //img start x
             player.y - Math.floor(canvas.height / 2 ) + Math.floor(player.height /2 ), //img start y
             canvas.width, //img width size
             canvas.height, //img height size
+            0, //canvas initial x
+            0, //canvas initial y
+            canvas.width, //canvas width size
+            canvas.height //canvas height size
+        );
+
+        if(dev){
+            ctx.globalAlpha = 0.4;
+            ctx.drawImage(
+                mapCollision,
+                player.x - Math.floor(canvas.width / 2 ) + Math.floor(player.width / 2), //img start x
+                player.y - Math.floor(canvas.height / 2 ) + Math.floor(player.height /2 ), //img start y
+                canvas.width, //img width size
+                canvas.height, //img height size
+                0, //canvas initial x
+                0, //canvas initial y
+                canvas.width, //canvas width size
+                canvas.height //canvas height size
+            );
+            ctx.globalAlpha = 1;
+        }
+    },
+
+    drawPlayerVision(canvas, ctx, vision){
+        ctx.drawImage(
+            vision,
+            0,
+            0,
+            vision.width, //img width size
+            vision.height, //img height size
             0, //canvas initial x
             0, //canvas initial y
             canvas.width, //canvas width size
@@ -141,7 +171,7 @@ const DrawCanvas = {
         ctx.fillRect( centerX, centerY, width, height); 
     },
     
-    drawServerPlayers(ctx, canvas, serverPlayers, color, player, playerRefCanvas){
+    drawServerPlayers(ctx, canvas, serverPlayers, color, player, playerRefCanvas, CollisionDetection, sprites){
         ctx.fillStyle = color;
 
         serverPlayers.forEach( (serverPlayer) => {
@@ -149,13 +179,27 @@ const DrawCanvas = {
             if(serverPlayer.serverIndex == player.serverIndex || serverPlayer.status == 'dead')
                 return;
 
+            //Verifica se o player está no campo de visão do jogador
+            let playerVIsion = {
+                type: 'circle',
+                x: player.x,
+                y: player.y,
+                radius: canvas.width / 3
+            };
+
+            if( !CollisionDetection.rectCircleCollision(playerVIsion, serverPlayer) ){
+                return;
+            }
 
             let positionCanvas = {
                 x: playerRefCanvas.x + (serverPlayer.x - player.x),
                 y: playerRefCanvas.y + (serverPlayer.y - player.y)
             }
 
-            ctx.fillRect( positionCanvas.x, positionCanvas.y, serverPlayer.width, serverPlayer.height);
+            let playerSprite = sprites[serverPlayer.color] ? serverPlayer.color : 'original';
+
+            this.drawPlayerSprite(ctx, serverPlayer, player, playerRefCanvas, sprites[playerSprite])
+            // ctx.fillRect( positionCanvas.x, positionCanvas.y, serverPlayer.width, serverPlayer.height);
         } );
     }
 }

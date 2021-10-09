@@ -15,13 +15,15 @@ function main(){
 
     GameEngine.initListeners();
 
-    GameEngine.setMap('./img/theSkeldLQ.png').then( () => {
-        GameEngine.initializeSprites('./img/sprites.png').then( () => {
+    GameEngine.setMap('./img/theSkeldLQ.png', './img/theSkeldLQ-MAP.png').then( () => {
+        GameEngine.setVision('./img/vision.png').then( () => {
+            GameEngine.initializeSprites('./img/sprites.png').then( () => {
 
-            GameEngine.setColorPlayer( 'black' );
-            requestAnimationFrame( () => GameEngine.run() );
+                GameEngine.setColorPlayer( 'black' );
+                requestAnimationFrame( () => GameEngine.run() );
 
-           //requestAnimationFrame( () => GameEngine.run() )
+            //requestAnimationFrame( () => GameEngine.run() )
+            } );
         } );
     } );
 }

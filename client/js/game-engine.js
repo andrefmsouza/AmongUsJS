@@ -14,18 +14,20 @@ const GameEngine = {
 
     VELOCITY: 3,
     CANVAS_WIDTH: 720,
-    CANVAS_HEIGHT: 480,
+    CANVAS_HEIGHT: 720,
     PLAYER_REF_CANVAS: {
         x: 0,
         y: 0
     },
-    DEV: true,
+    DEV: false,
     SINGLE_PLAYER: false,
     INPUT_DEV_MODE: {},
 
     canvas: {},
     ctx: {},
     map: {},
+
+    vision: {},
 
     canvasCollision: {},
     ctxCollision: {},
@@ -183,10 +185,9 @@ const GameEngine = {
         this.PLAYER_REF_CANVAS.y = Math.floor( ( this.canvas.height / 2 ) - ( this.player.height / 2) ); 
     },
 
-    setMap(path){
+    setMap(path, pathCollision){
         this.map = new Image();
         this.map.src = path;
-        // this.map.src = './img/theSkeldLQ-MAP.png';
         
         if( this.DEV ){
             this.INPUT_DEV_MODE = document.createElement("INPUT");
@@ -231,7 +232,7 @@ const GameEngine = {
                 
                 
                 this.mapCollision = new Image();
-                this.mapCollision.src = './img/theSkeldLQ-MAP.png';
+                this.mapCollision.src = pathCollision;
 
                 this.mapCollision.onload = () => {
 
@@ -246,6 +247,17 @@ const GameEngine = {
         });
 
         
+    },
+
+    setVision(path){
+        this.vision = new Image();
+        this.vision.src = path;
+
+        return new Promise( (resolve, reject) => {
+            this.vision.onload = () => {
+                resolve();
+            };
+        });
     },
 
     initializeSprites(path){
@@ -483,19 +495,22 @@ const GameEngine = {
             this.movePlayer();
             
             //Background
-            DrawCanvas.drawRect(this.ctx, 0, 0, this.canvas.width, this.canvas.height, "green");
-            DrawCanvas.drawMap( this.canvas, this.ctx, this.map, this.player );
+            DrawCanvas.drawRect(this.ctx, 0, 0, this.canvas.width, this.canvas.height, "black");
+            DrawCanvas.drawMap( this.canvas, this.ctx, this.map, this.player, this.DEV, this.mapCollision );
             //Server Players
-            DrawCanvas.drawServerPlayers(this.ctx, this.canvas, this.serverPlayers, "white", this.player, this.PLAYER_REF_CANVAS);
+            DrawCanvas.drawServerPlayers(this.ctx, this.canvas, this.serverPlayers, "white", this.player, this.PLAYER_REF_CANVAS, CollisionDetection, this.sprites);
             //Player
-            DrawCanvas.drawPlayer(this.ctx, this.canvas, this.player, "red");
+            if( this.DEV ){
+                DrawCanvas.drawPlayer(this.ctx, this.canvas, this.player, "red");
+            }
             let playerSprite = this.sprites[this.player.color] ? this.player.color : 'original';
 
             DrawCanvas.drawPlayerSprite(this.ctx, this.player, this.player, this.PLAYER_REF_CANVAS, this.sprites[playerSprite]);
 
-            if( this.DEV ){
-                DrawCanvas.drawObjects(this.obstacles, this.ctx, this.PLAYER_REF_CANVAS, this.player, "red");
-            }
+            DrawCanvas.drawPlayerVision( this.canvas, this.ctx, this.vision );
+            // if( this.DEV ){
+            //     DrawCanvas.drawObjects(this.obstacles, this.ctx, this.PLAYER_REF_CANVAS, this.player, "red");
+            // }
         }catch(e){
             console.log(e);
         }
